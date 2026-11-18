@@ -37,12 +37,14 @@ def candidate_metrics(scores):
         ["candidate_score", "candidate_rank", "arc_id"], ascending=[False, True, True],
     )
     top = ranked.drop_duplicates(OBSERVATION_KEY)
+    predicted = labeled["candidate_score"].ge(0.5)
     return {
         "observations": len(group_sizes),
         "labeled_observations": len(top),
         "label_coverage": len(top) / len(group_sizes),
         "top1": float(top["label"].mean()),
-        "candidate_f1_at_0_5": f1_score(labeled["label"], labeled["candidate_score"].ge(0.5), zero_division=0),
+        "candidate_f1_at_0_5": f1_score(labeled["label"], predicted, zero_division=0),
+        "candidate_macro_f1_at_0_5": f1_score(labeled["label"], predicted, labels=[0, 1], average="macro", zero_division=0),
         "candidate_log_loss": log_loss(labeled["label"], labeled["candidate_score"], labels=[0, 1]),
     }
 

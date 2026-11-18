@@ -1,7 +1,15 @@
 import pandas as pd
 
+from scripts.evaluate_candidate_recall import evaluate_trip
 from src.data.candidates import generate_candidates
 from src.data.labels import label_candidates
+
+
+def test_candidate_recall_keeps_missed_reference_arcs_in_denominator(directed_trip):
+    report = evaluate_trip(directed_trip, max_candidates=1)
+    assert report["reference_matches"] == 2
+    assert report["candidate_hits"] == 0
+    assert report["candidate_recall"] == 0
 
 
 def test_labels_are_nullable_and_require_positive_coverage(directed_trip):

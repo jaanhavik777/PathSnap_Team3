@@ -2,6 +2,8 @@
 
 Distributed GPS map matching using road candidates, supervised scoring, HMM/Viterbi route reconstruction, FastAPI, and Streamlit/Folium.
 
+See [contributors](CONTRIBUTORS.md) for team ownership and [contributing](CONTRIBUTING.md) for shared evaluation and review practices.
+
 ## Setup
 
 ```powershell
@@ -11,6 +13,34 @@ python -m pip install -r requirements.txt
 ```
 
 Place the supplied dataset under `data/raw/` or point commands to an extracted data root. `.track`, `.nodes`, `.arcs`, and `.route` parsing plus candidate features are implemented under `src/data/`. `.route` is a chronological arc sequence, **not** GPS-aligned labels. Evaluator data and labels must not enter training, model selection, or the prediction UI.
+
+## Shared data and Logistic Regression / KNN
+
+Run these from the repository root. The feature contract fixes the shared defaults at 50 metres and up to eight directed candidates per observation.
+
+```bash
+python -m scripts.inspect_data
+python -m scripts.build_features --partition train --labels --out data/processed/train_candidates.csv
+python -m scripts.build_features --partition student_test --labels --out data/processed/student_test_candidates_labeled.csv
+python -m scripts.train_all
+python -m scripts.evaluate_candidate_recall
+python -m scripts.evaluate_person1 --partition student_test
+python -m scripts.export_results
+```
+
+Training uses weak labels and five folds grouped by trip. The results index is `artifacts/results/baseline_results.md`. See the [feature contract](docs/feature_contract.md) and [measured baseline results](docs/baseline_results.md) for denominators and metric definitions.
+
+To tune on training folds, run `python -m scripts.run_tuning --trials 8`. The tuner keeps the baseline as a trial, selects by mean validation observation top-1, and writes fitted models, trials, and selected parameters to `artifacts/tuned_baselines/`. After selection, evaluate those models with `python -m scripts.evaluate_person1 --partition student_test --model-dir artifacts/tuned_baselines --out-dir artifacts/tuned_baselines/student_test`.
+
+If the evaluator inputs are supplied, run the selected model configuration for inference only. To export the two original baselines:
+
+```bash
+python -m scripts.build_features --partition evaluator_test --out data/processed/evaluator_test_candidates.csv
+python -m scripts.evaluate_person1 --partition evaluator_test
+python -m scripts.export_results
+```
+
+Evaluator reference routes are excluded from these commands. Keep the generated score, route, model, and data files local.
 
 ## Person 4 — baseline MLP
 
