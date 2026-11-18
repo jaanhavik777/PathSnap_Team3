@@ -52,3 +52,8 @@ It includes pre-decoder direct continuity (93.58% for Logistic Regression and
 Forest evaluation (0.1645 and 0.1756, respectively). The
 [model report](../reports/sections/04_models.md) explains the denominators and
 includes the comparison figures.
+
+The [candidate confusion matrix figure](../reports/figures/baselines/student_test_confusion_matrices.png)
+and its [aggregate counts](../reports/data/student_test_confusion_counts.csv)
+use threshold 0.5 and omit blank weak labels. Regenerate them with
+`python -m scripts.plot_baseline_confusion`.

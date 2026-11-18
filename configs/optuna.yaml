@@ -1,0 +1,16 @@
+# Recorded Logistic Regression and KNN settings used by scripts/run_tuning.py.
+sampler: TPE
+seed: 42
+startup_trials: 10
+trials_per_model: 11
+objective: maximize_mean_observation_top1
+selection_partition: train
+cross_validation:
+  report_run_folds: 3
+  group: trip_id
+logistic_regression:
+  C: {min: 0.001, max: 100.0, distribution: log_uniform}
+knn:
+  n_neighbors: {min: 3, max: 31, step: 2}
+  weights: [uniform, distance]
+  max_fit_rows: 25000

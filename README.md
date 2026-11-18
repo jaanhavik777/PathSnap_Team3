@@ -28,6 +28,7 @@ python -m scripts.evaluate_person1 --partition student_test
 python -m scripts.analyze_data
 python -m scripts.export_results
 python -m scripts.plot_baseline_results
+python -m scripts.plot_baseline_confusion
 ```
 
 Training uses weak labels and five folds grouped by trip. The results index is `artifacts/results/baseline_results.md`. The exporter can reuse existing scores from `artifacts/jaanhavi/` or `artifacts/person1/`; new evaluation runs write to `artifacts/baseline_evaluation/`. See the [feature contract](docs/feature_contract.md), [EDA and preprocessing report](reports/sections/02_eda_and_preprocessing.md), and [measured baseline results](docs/baseline_results.md).
@@ -36,7 +37,11 @@ For the five-model comparison, use `top1_direct_continuity` to match the Random 
 
 Generate a Folium development map with `python -m scripts.make_map data/raw/train/00000001 --out artifacts/maps/trip_00000001.html`. It overlays the GPS trace, a sampled road graph, and the reference route. Keep the raw data and generated maps local.
 
-To tune on training folds, run `python -m scripts.run_tuning --trials 8`. The tuner keeps the baseline as a trial, selects by mean validation observation top-1, and writes fitted models, trials, and selected parameters to `artifacts/tuned_baselines/`. After selection, evaluate those models with `python -m scripts.evaluate_person1 --partition student_test --model-dir artifacts/tuned_baselines --out-dir artifacts/tuned_baselines/student_test`.
+To reproduce the tuning experiment, run `python -m scripts.run_tuning --folds 3 --trials 11`. The tuner queues the baseline, selects by mean observation top-1 across training folds, and saves fitted models, trial logs, and selected parameters under `artifacts/tuned_baselines/`. The search settings are recorded in [configs/optuna.yaml](configs/optuna.yaml). Evaluate the selected models with `python -m scripts.evaluate_person1 --partition student_test --model-dir artifacts/tuned_baselines --out-dir artifacts/tuned_baselines/student_test`.
+
+See the [tuning report](docs/baseline_tuning.md) for the measured search and the student-test comparison. See the [confusion matrices](reports/figures/baselines/student_test_confusion_matrices.png) for candidate decisions at threshold 0.5.
+
+The baseline models are tracked at `artifacts/baselines/logistic_regression.joblib` and `artifacts/baselines/knn.joblib`. See their recorded [Logistic Regression](configs/models/logistic_regression.yaml) and [KNN](configs/models/knn.yaml) configurations. The KNN artifact stores sampled feature vectors and labels as part of the fitted estimator. Keep raw files, per-observation scores, and newly generated experiment models local.
 
 If the evaluator inputs are supplied, run the selected model configuration for inference only. To export the two original baselines:
 
@@ -46,7 +51,7 @@ python -m scripts.evaluate_person1 --partition evaluator_test
 python -m scripts.export_results
 ```
 
-Evaluator reference routes are excluded from these commands. Keep the generated score, route, model, and data files local.
+Evaluator reference routes are excluded from these commands. Keep the generated scores, routes, and data files local.
 
 ## Person 4 — baseline MLP
 
