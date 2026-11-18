@@ -1,0 +1,109 @@
+{
+  "model": "MLPClassifier",
+  "config": {
+    "hidden": [
+      32
+    ],
+    "alpha": 0.001,
+    "seed": 42,
+    "max_iter": 40
+  },
+  "candidate_config": {
+    "radius_m": 50.0,
+    "max_candidates": 8
+  },
+  "feature_columns": [
+    "distance_m",
+    "projection_fraction",
+    "candidate_rank",
+    "arc_length_m",
+    "from_node_in_degree",
+    "to_node_out_degree",
+    "step_distance_m",
+    "speed_mps",
+    "heading_error_deg"
+  ],
+  "seed": 42,
+  "training_rows": 614508,
+  "training_trips": 78,
+  "positive_rows": 121337,
+  "cv": {
+    "cv_macro_f1_mean": 0.8924424607636358,
+    "cv_macro_f1_std": 0.01670554069675903,
+    "cv_train_macro_f1_mean": 0.9085451515917056,
+    "cv_observation_top1_mean": 0.8389609172768578,
+    "fold_scores": [
+      0.874860432750969,
+      0.8875672077896282,
+      0.9148997417503102
+    ]
+  },
+  "student_test": {
+    "candidate_accuracy": 0.9530365337624411,
+    "candidate_macro_f1": 0.9280465767961064,
+    "precision": 0.8801076819536583,
+    "recall": 0.8912472008567812,
+    "log_loss": 0.11373267673730292,
+    "observation_top1_accuracy": 0.8884237172621945,
+    "labeled_observations": 10271,
+    "candidate_rows": 50337,
+    "confusion_matrix": [
+      [
+        38819,
+        1247
+      ],
+      [
+        1117,
+        9154
+      ]
+    ]
+  },
+  "student_trips_evaluated": 10,
+  "training_time_s": 56.39594179999949,
+  "student_inference_time_s": 0.17191400000046997,
+  "training_iterations": 40,
+  "training_converged_before_limit": false,
+  "training_loss_curve": [
+    0.2159511825555827,
+    0.156251056884478,
+    0.152117198341948,
+    0.1495108817205045,
+    0.14758978913725934,
+    0.14614884329429859,
+    0.1451595448870945,
+    0.1444902213805347,
+    0.14382316425833233,
+    0.1432390299443289,
+    0.14266451017507317,
+    0.1422110661128947,
+    0.1417498536176711,
+    0.14127456563192406,
+    0.1409208121429694,
+    0.1405387358651456,
+    0.14026435108259655,
+    0.13993536508041146,
+    0.13965535996645187,
+    0.13929500540634807,
+    0.13899995542217045,
+    0.13880453317214478,
+    0.1385466413631074,
+    0.13831939937542898,
+    0.13806739880198002,
+    0.13789321489648826,
+    0.13775848847621006,
+    0.13756693493188468,
+    0.13732831073460255,
+    0.1372371780977931,
+    0.13703206560155687,
+    0.1369021325016178,
+    0.13673990634600913,
+    0.13660141428436914,
+    0.13648268173846453,
+    0.13631863983028883,
+    0.13617966280827903,
+    0.1360769210670538,
+    0.13593347351884458,
+    0.13588769602782397
+  ],
+  "labeling_note": "Uses src.data.build_dataset and src.data.labels; nullable unresolved observations are excluded."
+}
