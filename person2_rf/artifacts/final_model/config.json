@@ -1,0 +1,30 @@
+{
+  "model": "RandomForest_tuned",
+  "params": {
+    "n_estimators": 441,
+    "max_depth": 12,
+    "min_samples_leaf": 2,
+    "min_samples_split": 13,
+    "max_features": 0.3009016858944904,
+    "max_samples": 0.7449864167012109,
+    "criterion": "entropy",
+    "class_weight": null,
+    "n_jobs": -1,
+    "random_state": 42
+  },
+  "features": [
+    "candidate_rank",
+    "distance_m",
+    "projection_fraction",
+    "from_node_in_degree",
+    "to_node_out_degree",
+    "arc_length_m",
+    "step_distance_m",
+    "speed_mps",
+    "heading_error_deg"
+  ],
+  "threshold": 0.5,
+  "candidates_per_obs": 10,
+  "seed": 42,
+  "optimisation_time_s": 3265.275953769684
+}
