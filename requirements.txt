@@ -10,4 +10,5 @@ streamlit-folium>=0.20
 requests>=2.31
 fastapi>=0.110
 uvicorn[standard]>=0.27
+optuna>=3.5
 pytest>=8.0

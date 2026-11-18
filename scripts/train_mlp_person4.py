@@ -10,10 +10,13 @@ def main():
     parser.add_argument("--data-root",required=True,help="Dataset root containing train/ and student_test/")
     parser.add_argument("--output",default="artifacts/models/mlp")
     parser.add_argument("--seed",type=int,default=42)
-    parser.add_argument("--candidate-count",type=int,default=4)
+    parser.add_argument("--radius-m",type=float,default=50.0)
+    parser.add_argument("--max-candidates",type=int,default=8)
+    parser.add_argument("--folds",type=int,default=3)
     args=parser.parse_args()
     out=Path(args.output)
-    result=run(args.data_root,out,args.seed,args.candidate_count)
+    result=run(args.data_root,out,args.seed,radius_m=args.radius_m,
+               max_candidates=args.max_candidates,folds=args.folds)
     metrics=Path("artifacts/metrics"); metrics.mkdir(parents=True,exist_ok=True)
     plots=Path("artifacts/plots"); plots.mkdir(parents=True,exist_ok=True)
     for name in ("metrics.json","metrics.csv"):

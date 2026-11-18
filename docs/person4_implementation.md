@@ -1,17 +1,17 @@
 # Person 4 implementation notes
 
-## Current status
+## Data and MLP
 
-The first remote fetch initially had no repository history. The teammate's scaffold has since been fetched, and this work is on local branch `feature/thanvitha-mlp-frontend`, based on `origin/main`. The official student archive contains 80 training trips and 10 student-testing trips, each with `.track`, `.nodes`, `.arcs`, and `.route`. No evaluator-testing partition or populated shared Person 1 feature pipeline was present in the supplied archive/scaffold. `.track` rows are longitude, latitude, seconds; `.nodes` rows are longitude, latitude; `.arcs` rows index nodes and their row index is arc ID; `.route` is a sequence of arc IDs and is not a row-wise GPS label array.
+The supplied archive contains 80 training trips and 10 student-test trips. No evaluator-test partition was supplied. This branch now merges the latest team `main` and uses the common parser (`src.data.parsers.load_trip`), candidate/feature/label pipeline (`src.data.build_dataset.build_trip_dataset`), and feature schema (`src.data.features.FEATURE_COLUMNS`). `.route` is a chronological sequence of arc IDs, not GPS-aligned labels. The shared labeler returns nullable labels after its distance, ambiguity, route-uniqueness, and order checks; unresolved rows are excluded from model fitting.
 
-The MLP code uses a provisional association: for each GPS point it spatially retrieves nearby road segments and labels only a route-listed segment that is closest, within 35 m, and at least 2 m closer than another route-listed candidate. All other observations are unlabeled for candidate classification. This avoids asserting a false row alignment, but it is an independent provisional feature/label implementation and must be aligned with Person 1's agreed shared pipeline before team model comparisons. Projection uses local equirectangular metres centered at each trip latitude; short-trip use only. Candidate indexing uses a segment midpoint KD tree to keep networks with large arc counts tractable.
+The baseline uses a 32-unit ReLU `MLPClassifier`, Adam, alpha 0.001, batch size 512, seed 42, and max 40 iterations. A median imputer and standard scaler are fitted within each fold. Three-fold GroupKFold assigns whole trips to each validation fold. The full-data and fold models hit the 40-iteration cap, so this experiment records a convergence limitation rather than claiming full convergence. Actual scores and sample coverage are in `docs/mlp_person4_results.md` and `artifacts/metrics/mlp_metrics.json`.
 
-## MLP
+## Frontend and maps
 
-The MLP is a supervised candidate-match classifier. Median imputation and standardization are fitted as part of the sklearn pipeline, including independently within each GroupKFold training fold. The hidden layer has 32 ReLU units. Adam optimizes the classifier's log-loss with L2 regularization (`alpha=0.001`), seed 42, and early stopping. Candidate-level metrics are separate from observation Top-1, which ranks candidate probabilities within each GPS observation and scores only labeled observations. The student test output is development evidence and its coverage limitation must accompany any reported score.
+The Streamlit client dynamically requests trip IDs and fresh predictions from FastAPI. It displays returned metrics and geometry only; it does not calculate matches or access labels. Its API client handles timeouts, HTTP/JSON errors, mismatched trip IDs, and malformed geometry. The Folium frontend has GPS, road network, and predicted-route layers; a separate development exporter can add reference routes only for `train` or `student_test` trips.
 
-## Frontend and map
+## Integration status
 
-The Streamlit client gets the trip list and each newly generated result from FastAPI. It displays only returned metrics and geometry, has no route-label or local dataset access, and drops results when requesting another prediction. The Folium renderer accepts GPS `[lat,lon]` and road-segment GeoJSON `[lon,lat]`, draws separately toggled layers, and omits malformed coordinates safely. The API contract must be confirmed with Person 3; no backend was in the repository at inspection time. No cross-laptop integration is claimed.
+The `api/` files on the merged branch are still empty; `docs/api_contract.md` is therefore a proposed contract awaiting Person 3's confirmation. The UI works with mocked API responses in tests, but live API communication and the two-laptop demo remain unverified. Evaluator data is not included in the MLP training command.
 
-AI assistance was used to draft and implement code. The team member must review, understand, reproduce and disclose assistance under the event policy.
+AI assistance was used to draft and implement code. Review, understand, reproduce, and disclose assistance under the event policy.

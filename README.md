@@ -1,6 +1,6 @@
-# PathSnap — Person 4 contribution
+# PathSnap Team 3
 
-This branch contains the MLP comparison model, Streamlit evaluator UI, Folium renderers, actual student-test experiment results, and demo instructions. It follows the team's scaffold directories. The API and shared candidate-feature contract files are still placeholders on the fetched branches, so the API shape and provisional label pipeline need teammate confirmation. Changes are local and have not been pushed.
+Distributed GPS map matching using road candidates, supervised scoring, HMM/Viterbi route reconstruction, FastAPI, and Streamlit/Folium.
 
 ## Setup
 
@@ -10,9 +10,11 @@ python -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-## Train and evaluate the MLP
+Place the supplied dataset under `data/raw/` or point commands to an extracted data root. `.track`, `.nodes`, `.arcs`, and `.route` parsing plus candidate features are implemented under `src/data/`. `.route` is a chronological arc sequence, **not** GPS-aligned labels. Evaluator data and labels must not enter training, model selection, or the prediction UI.
 
-The supplied data root has `train/` and `student_test/`. The script does not open an evaluator-test partition.
+## Person 4 — baseline MLP
+
+The MLP uses the shared `build_trip_dataset` pipeline and `FEATURE_COLUMNS`/`label_candidates` implementation. The 80 training trips are processed for fitting and trip-grouped validation; 78 trips contributed labeled rows in this run. The 10 student-test trips are used only for development evaluation. Evaluator-test folders are not opened by this command.
 
 ```powershell
 python -m scripts.train_mlp_person4 `
@@ -20,23 +22,11 @@ python -m scripts.train_mlp_person4 `
   --output artifacts/models/mlp
 ```
 
-The fitted model is saved under `artifacts/models/mlp/`; measured metrics and plots are copied into `artifacts/metrics/` and `artifacts/plots/`. See `docs/mlp_person4_results.md` for the actual experiment and label-coverage caveat. Agree the provisional route-to-GPS labels and candidate features with Person 1 before comparing model scores.
+Outputs are written under `artifacts/models/mlp/`, `artifacts/metrics/`, and `artifacts/plots/`. Current measured results use the shared pipeline and are documented in `docs/mlp_person4_results.md` and `docs/review_1130.md`.
 
-Generate a development map from a permitted train or student-test trip:
+## Person 4 — frontend
 
-```powershell
-python -m src.models.export_mlp_dev_map `
-  --trip-folder "C:\path\to\Student folder\student_test\00000000" `
-  --include-reference
-```
-
-The exporter refuses reference-route mapping for partitions other than `train` and `student_test`.
-
-## Two-laptop UI
-
-On Laptop 1, Person 3 should start FastAPI bound to `0.0.0.0:8000`, check `/api/health`, and leave the server terminal visible for genuine inference logs. Find Laptop 1's LAN IP using `ipconfig`.
-
-On Laptop 2:
+The frontend requests available trips and fresh predictions from the FastAPI service; it does not perform map matching or access reference routes. Set the backend address on Laptop 2:
 
 ```powershell
 $env:PATHSNAP_API_URL = "http://<LAPTOP_1_LAN_IP>:8000"
@@ -44,8 +34,14 @@ Invoke-RestMethod "$env:PATHSNAP_API_URL/api/health"
 python -m streamlit run frontend/app.py
 ```
 
-See `frontend/README.md`, `docs/api_contract.md`, and `docs/demo_checklist.md` for expected response geometry and network troubleshooting. The UI uses backend-returned trip IDs and predictions; it has no fake fallback. Real API and cross-laptop tests await Person 3's backend.
+See `docs/api_contract.md`, `frontend/README.md`, and `docs/demo_checklist.md`. The contract must match the backend implementation before live/two-laptop integration can be claimed.
 
-## Verification
+## Data and feature tools
 
-Run `python -m pytest tests/test_person4.py -q` for Person 4 unit tests. The current result is 8 passed; they cover local model save/reload, feature labels, map layers, and mocked API behavior, not live backend integration.
+```powershell
+python -m scripts.inspect_data --help
+python -m scripts.build_features --help
+python -m pytest
+```
+
+Raw data is gitignored. Do not commit evaluator labels or private credentials.
