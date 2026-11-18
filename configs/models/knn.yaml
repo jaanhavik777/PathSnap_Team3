@@ -1,0 +1,18 @@
+# Recorded baseline settings. scripts/train_all.py builds this pipeline.
+model: knn
+preprocessing:
+  imputation: median
+  scaling: standard
+estimator:
+  n_neighbors: 15
+  weights: distance
+  algorithm: kd_tree
+  n_jobs: 2
+fit_sample:
+  max_rows: 25000
+  stratify: label
+  seed: 42
+cross_validation:
+  folds: 5
+  group: trip_id
+artifact: artifacts/baselines/knn.joblib

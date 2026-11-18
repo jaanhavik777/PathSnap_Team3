@@ -1,0 +1,37 @@
+{
+  "objective": "mean_training_group_cv_observation_top1",
+  "folds": 3,
+  "seed": 42,
+  "max_fit_rows": null,
+  "trial": 10,
+  "parameters": {
+    "C": 0.0014083688910684416
+  },
+  "mean_top1": 0.8390220249329917,
+  "fold_metrics": [
+    {
+      "fold": 1,
+      "fit_rows": 409571,
+      "validation_trips": 26,
+      "validation_observations": 39756,
+      "average_precision": 0.8394199520795976,
+      "observation_top1": 0.8131099708220143
+    },
+    {
+      "fold": 2,
+      "fit_rows": 409368,
+      "validation_trips": 26,
+      "validation_observations": 45132,
+      "average_precision": 0.8563281992038746,
+      "observation_top1": 0.8377869360985554
+    },
+    {
+      "fold": 3,
+      "fit_rows": 410077,
+      "validation_trips": 26,
+      "validation_observations": 36449,
+      "average_precision": 0.8893681915607694,
+      "observation_top1": 0.8661691678784055
+    }
+  ]
+}
