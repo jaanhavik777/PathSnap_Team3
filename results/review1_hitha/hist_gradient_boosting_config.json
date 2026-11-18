@@ -1,0 +1,128 @@
+{
+  "model_config": {
+    "learning_rate": 0.1,
+    "max_iter": 150,
+    "max_leaf_nodes": 31,
+    "max_depth": null,
+    "min_samples_leaf": 20,
+    "l2_regularization": 0.0,
+    "random_state": 42
+  },
+  "feature_names": [
+    "distance_meters",
+    "heading_diff_deg",
+    "projection_fraction",
+    "segment_length_m",
+    "gps_speed_mps",
+    "bearing_cos",
+    "bearing_sin",
+    "proximity_score"
+  ],
+  "dataset_summary": {
+    "num_train_trips": 80,
+    "num_train_candidates": 1806398,
+    "num_test_trips": 10,
+    "num_test_candidates": 174150
+  },
+  "per_trip_test_metrics": [
+    {
+      "trip_id": "00000000",
+      "candidates": 14121,
+      "observations": 2503,
+      "top1_accuracy": 0.8102,
+      "candidate_miss_rate": 0.1171,
+      "route_continuity": 0.9484
+    },
+    {
+      "trip_id": "00000007",
+      "candidates": 7766,
+      "observations": 1354,
+      "top1_accuracy": 0.8833,
+      "candidate_miss_rate": 0.0236,
+      "route_continuity": 0.9956
+    },
+    {
+      "trip_id": "00000009",
+      "candidates": 12075,
+      "observations": 1049,
+      "top1_accuracy": 0.7407,
+      "candidate_miss_rate": 0.0534,
+      "route_continuity": 0.8989
+    },
+    {
+      "trip_id": "00000040",
+      "candidates": 18417,
+      "observations": 2995,
+      "top1_accuracy": 0.7953,
+      "candidate_miss_rate": 0.0715,
+      "route_continuity": 0.9649
+    },
+    {
+      "trip_id": "00000052",
+      "candidates": 2672,
+      "observations": 262,
+      "top1_accuracy": 0.9084,
+      "candidate_miss_rate": 0.0153,
+      "route_continuity": 0.9425
+    },
+    {
+      "trip_id": "00000056",
+      "candidates": 41208,
+      "observations": 3958,
+      "top1_accuracy": 0.7734,
+      "candidate_miss_rate": 0.025,
+      "route_continuity": 0.8767
+    },
+    {
+      "trip_id": "00000065",
+      "candidates": 8952,
+      "observations": 768,
+      "top1_accuracy": 0.6432,
+      "candidate_miss_rate": 0.1341,
+      "route_continuity": 0.8983
+    },
+    {
+      "trip_id": "00000076",
+      "candidates": 17377,
+      "observations": 1486,
+      "top1_accuracy": 0.7483,
+      "candidate_miss_rate": 0.0061,
+      "route_continuity": 0.9003
+    },
+    {
+      "trip_id": "00000077",
+      "candidates": 42097,
+      "observations": 3911,
+      "top1_accuracy": 0.5098,
+      "candidate_miss_rate": 0.0619,
+      "route_continuity": 0.9524
+    },
+    {
+      "trip_id": "00000091",
+      "candidates": 9465,
+      "observations": 874,
+      "top1_accuracy": 0.7551,
+      "candidate_miss_rate": 0.0149,
+      "route_continuity": 0.8912
+    }
+  ],
+  "metrics": {
+    "model_name": "HistGradientBoostingClassifier",
+    "algorithm_family": "Boosting",
+    "cv_folds": 5,
+    "cv_candidate_macro_f1_mean": 0.8263,
+    "cv_candidate_macro_f1_std": 0.0413,
+    "cv_top1_accuracy_mean": 0.6351,
+    "cv_top1_accuracy_std": 0.1429,
+    "cv_continuity_mean": 0.9086,
+    "student_test_candidate_macro_f1": 0.8529,
+    "student_test_candidate_precision": 0.7775,
+    "student_test_candidate_recall": 0.6964,
+    "student_test_candidate_log_loss": 0.1429,
+    "student_test_top1_accuracy": 0.7277,
+    "student_test_candidate_miss_rate": 0.0556,
+    "student_test_route_continuity": 0.9269,
+    "training_time_seconds": 34.05,
+    "test_inference_time_seconds": 1.67
+  }
+}
