@@ -15,11 +15,11 @@ def main():
     parser.add_argument("--trip", action="append", help="Trip ID, repeatable")
     parser.add_argument("--radius-m", type=float, default=50.0)
     parser.add_argument("--max-candidates", type=int, default=8)
-    parser.add_argument("--labels", action="store_true", help="Include weak labels on train only")
+    parser.add_argument("--labels", action="store_true", help="Include weak labels for train or student_test")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
-    if args.labels and args.partition != "train":
-        parser.error("--labels requires the train partition")
+    if args.labels and args.partition == "evaluator_test":
+        parser.error("--labels is not allowed for evaluator_test")
 
     root = args.data_root / args.partition
     trip_ids = list(dict.fromkeys(args.trip or []))
