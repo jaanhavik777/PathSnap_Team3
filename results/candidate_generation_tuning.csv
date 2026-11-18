@@ -1,0 +1,9 @@
+strategy,radius_m,max_cands,total_obs,missed_obs,miss_rate_pct,recall_pct,avg_cands_per_obs,latency_ms_per_1k_obs,total_time_s
+baseline_3point,60.0,8,30244,2930,9.69,90.31,6.4,401.4,12.14
+baseline_3point,75.0,10,30244,2339,7.73,92.27,8.03,631.19,19.09
+dense_index,50.0,8,30244,1250,4.13,95.87,6.23,524.28,15.86
+dense_index,65.0,10,30244,1074,3.55,96.45,7.86,677.67,20.5
+dense_index,75.0,10,30244,1061,3.51,96.49,8.13,563.4,17.04
+dense_index,75.0,12,30244,993,3.28,96.72,9.33,531.47,16.07
+dense_index,85.0,12,30244,969,3.2,96.8,9.63,582.98,17.63
+dense_index,100.0,14,30244,887,2.93,97.07,11.28,635.73,19.23

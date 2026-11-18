@@ -47,6 +47,7 @@ def get_default_model_path() -> Path:
             return p
 
     candidates = [
+        REPO_ROOT / "artifacts" / "models" / "hist_gradient_boosting_enhanced.joblib",
         REPO_ROOT / "artifacts" / "models" / "hist_gradient_boosting.joblib",
         REPO_ROOT / "artifacts" / "models" / "mlp" / "mlp_pipeline.joblib",
         REPO_ROOT.parent / "hack" / "artifacts" / "models" / "hist_gradient_boosting.joblib",

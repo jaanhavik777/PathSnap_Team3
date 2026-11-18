@@ -35,7 +35,7 @@ def align_reference_route_to_observations(
     timestamps: np.ndarray,
     road_graph: RoadGraph,
     reference_route: np.ndarray,
-    search_window: int = 15,
+    search_window: int = 50,
 ) -> np.ndarray:
     """
     Align GPS observations to the reference route sequence.

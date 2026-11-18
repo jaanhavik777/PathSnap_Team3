@@ -6,21 +6,15 @@ import pandas as pd
 from src.data.candidates import SegmentIndex, trip_coordinates
 
 
-def label_candidates(trip, candidates, *, max_distance_m=30.0, ambiguity_margin_m=5.0):
-    """Add nullable binary labels, leaving unresolved observations unlabeled.
-
-    Match against all reference arcs before checking candidate coverage. Reject
-    ambiguous geometry, repeated route arcs, and anchors that conflict in order.
-    """
+def match_reference_arcs(trip, *, max_distance_m=30.0, ambiguity_margin_m=5.0):
+    """Return the weak reference arc per resolvable observation, independent of candidates."""
     if not np.isfinite(max_distance_m) or max_distance_m <= 0:
         raise ValueError("max_distance_m must be positive and finite")
     if not np.isfinite(ambiguity_margin_m) or ambiguity_margin_m < 0:
         raise ValueError("ambiguity_margin_m must be nonnegative and finite")
-    result = candidates.copy()
-    result["label"] = pd.array([pd.NA] * len(result), dtype="Int8")
     route = trip["route"]
-    if route is None or route.empty or result.empty:
-        return result
+    if route is None or route.empty:
+        return {}
 
     track_xy, node_xy = trip_coordinates(trip)
     route_ids = pd.Index(route["arc_id"])
@@ -46,16 +40,27 @@ def label_candidates(trip, candidates, *, max_distance_m=30.0, ambiguity_margin_
             anchors.append((observation, arc_id, positions[arc_id]))
 
     if not anchors:
-        return result
+        return {}
     route_positions = np.array([position for _, _, position in anchors])
     prefix_max = np.maximum.accumulate(route_positions)
     suffix_min = np.minimum.accumulate(route_positions[::-1])[::-1]
     aligned = (route_positions == prefix_max) & (route_positions == suffix_min)
-    winners = {
+    return {
         observation: arc_id
         for (observation, arc_id, _), keep in zip(anchors, aligned)
         if keep
     }
+
+
+def label_candidates(trip, candidates, *, max_distance_m=30.0, ambiguity_margin_m=5.0):
+    """Assign weak labels to observations whose reference arc is a candidate."""
+    winners = match_reference_arcs(
+        trip, max_distance_m=max_distance_m, ambiguity_margin_m=ambiguity_margin_m,
+    )
+    result = candidates.copy()
+    result["label"] = pd.array([pd.NA] * len(result), dtype="Int8")
+    if result.empty or not winners:
+        return result
     chosen = result["observation_id"].map(winners)
     is_positive = result["arc_id"].eq(chosen)
     covered = result["observation_id"].isin(result.loc[is_positive, "observation_id"])

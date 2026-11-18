@@ -37,6 +37,7 @@ from src.hmm.route_metrics import (
     calculate_invalid_transition_rate,
 )
 from src.pipeline.model_adapter import ModelAdapter, HGB_FEATURE_NAMES
+from src.data.enhanced_features import ENHANCED_FEATURE_NAMES, extract_enhanced_candidates
 
 
 def extract_hgb_candidates(
@@ -252,8 +253,11 @@ def predict_trip(
 
     # 3. Generate Candidates & Features
     t0_cand = time.perf_counter()
-    use_hgb_schema = len(model_adapter.feature_names) == 8 or "hist_gradient" in model_adapter.model_name.lower()
-    if use_hgb_schema:
+    if len(model_adapter.feature_names) == 14:
+        obs_cands, X_features, obs_indices = extract_enhanced_candidates(
+            road_graph, lons, lats, timestamps, search_radius_m=75.0, max_cands=12
+        )
+    elif len(model_adapter.feature_names) == 8 or "hist_gradient" in model_adapter.model_name.lower():
         obs_cands, X_features, obs_indices = extract_hgb_candidates(
             road_graph, lons, lats, timestamps, search_radius_m=65.0, max_cands=10
         )
