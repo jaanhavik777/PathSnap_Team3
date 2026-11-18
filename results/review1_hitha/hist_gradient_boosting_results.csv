@@ -1,0 +1,2 @@
+model_name,algorithm_family,cv_folds,cv_candidate_macro_f1_mean,cv_candidate_macro_f1_std,cv_top1_accuracy_mean,cv_top1_accuracy_std,cv_continuity_mean,student_test_candidate_macro_f1,student_test_candidate_precision,student_test_candidate_recall,student_test_candidate_log_loss,student_test_top1_accuracy,student_test_candidate_miss_rate,student_test_route_continuity,training_time_seconds,test_inference_time_seconds
+HistGradientBoostingClassifier,Boosting,5,0.8263,0.0413,0.6351,0.1429,0.9086,0.8529,0.7775,0.6964,0.1429,0.7277,0.0556,0.9269,34.05,1.67

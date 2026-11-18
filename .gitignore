@@ -1,2 +1,16 @@
 Student_folder/
 person2_rf/artifacts/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+data/raw/
+data/processed/
+logs/*
+!logs/.gitkeep
+artifacts/models/*
+artifacts/results/*
+artifacts/maps/*
+artifacts/plots/*
+README.md
