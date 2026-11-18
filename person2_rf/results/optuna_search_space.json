@@ -1,0 +1,17 @@
+{
+  "space": {
+    "n_estimators": "int 100-500",
+    "max_depth": "int 4-30",
+    "min_samples_leaf": "int 1-30 (log)",
+    "min_samples_split": "int 2-20",
+    "max_features": "float 0.2-1.0",
+    "max_samples": "float 0.2-1.0",
+    "criterion": "gini|entropy",
+    "class_weight": "balanced_subsample|None"
+  },
+  "objective": "mean GroupKFold(5) F1 on train trips",
+  "sampler": "TPE (Bayesian)",
+  "n_trials": 40,
+  "seed": 42,
+  "tuning_row_step": 3
+}

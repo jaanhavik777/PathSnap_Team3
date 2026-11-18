@@ -1,30 +1,41 @@
-import os, json, time, pickle
-import numpy as np, pandas as pd, joblib
+import os, json, time
+from pathlib import Path
+import numpy as np, pandas as pd
 from sklearn.model_selection import GroupKFold
 from sklearn.metrics import (f1_score, log_loss, precision_score, recall_score,
                              accuracy_score, confusion_matrix)
 SEED = 42
-ART, RES = "artifacts", "results"
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+ART, RES = str(HERE / "artifacts"), str(HERE / "results")
 os.makedirs(ART, exist_ok=True); os.makedirs(RES, exist_ok=True)
 META = ["trip_id", "partition", "obs_idx", "arc_id", "y"]
-ARCS = pickle.load(open(f"{ART}/arcs_by_trip.pkl", "rb"))
+ARCS = {}
 
-def load_data(exclude_bad=False, miss_thresh=0.2):
+def _read(part):
+    df = pd.read_csv(ROOT / "data" / "processed" / f"{part}.csv", dtype={"trip_id": str})
+    df = df.rename(columns={"observation_id": "obs_idx", "label": "y"})
+    df["y"] = df["y"].fillna(-1).astype(int)          # -1 = unlabeled
+    df["partition"] = part
+    stems = df["trip_id"].copy()
+    df["trip_id"] = part + "/" + stems
+    for stem in stems.unique():
+        f = ROOT / "Student_folder" / part / stem / f"{stem}.arcs"
+        ARCS[f"{part}/{stem}"] = pd.read_csv(f, sep=r"\s+", header=None).values.astype(int)
+    return df
+
+def load_data():
     """Train + student_test only. Evaluator data is never loaded.
-    Default: use ALL train trips. exclude_bad=True drops train trips whose
-    candidate miss rate > miss_thresh (team decision pending)."""
-    df = pd.read_parquet(f"{ART}/candidates.parquet")
-    feats = [c for c in df.columns if c not in META]
-    tr = df[df.partition == "train"]
-    if exclude_bad:
-        miss = tr.groupby(["trip_id", "obs_idx"]).y.max().eq(0).groupby("trip_id").mean()
-        bad = miss[miss > miss_thresh]
-        bad.rename("miss_rate").to_csv(f"{RES}/excluded_train_trips.csv")
-        print("Excluded train trips:", dict(bad.round(3)))
-        tr = tr[~tr.trip_id.isin(bad.index)]
-    tr = tr.reset_index(drop=True)
-    te = df[df.partition == "student_test"].reset_index(drop=True)
-    return tr, te, feats
+    Train keeps labeled observations only. Test keeps every row, because route
+    continuity needs all points; metrics() scores only the labeled ones."""
+    tr, te = _read("train"), _read("student_test")
+    feats = [c for c in tr.columns if c not in META]
+    tr = tr[tr.y >= 0].reset_index(drop=True)
+    print("features:", feats)
+    print("train labeled observations:", tr.groupby("trip_id").obs_idx.nunique().sum())
+    print("test labeled observations:", te[te.y >= 0].groupby("trip_id").obs_idx.nunique().sum(),
+          "of", te.groupby("trip_id").obs_idx.nunique().sum())
+    return tr, te.reset_index(drop=True), feats
 
 def get_scores(model, X):
     if hasattr(model, "predict_proba"): return model.predict_proba(X)[:, 1], True
@@ -35,11 +46,8 @@ def top1_pred(df, s):
                       "arc_id": df.arc_id.values, "y": df.y.values, "s": s})
     return d.loc[d.groupby(["trip_id", "obs_idx"])["s"].idxmax()].sort_values(["trip_id", "obs_idx"])
 
-def miss_rate(df):
-    return float((df.groupby(["trip_id", "obs_idx"]).y.max() == 0).mean())
-
 def route_continuity(pred):
-    """Share of consecutive predicted arcs that are identical or directly connected (to_node == from_node)."""
+    """Share of consecutive predicted arcs that are identical or directly connected."""
     ok = tot = 0
     for tid, g in pred.groupby("trip_id"):
         a = g.arc_id.values; arcs = ARCS[tid]; p, n = a[:-1], a[1:]
@@ -47,19 +55,23 @@ def route_continuity(pred):
     return float(ok / max(tot, 1))
 
 def metrics(df, s, is_proba):
-    y = df.y.values; yhat = (s >= (0.5 if is_proba else 0.0)).astype(int)
-    pred = top1_pred(df, s)
+    pred_all = top1_pred(df, s)                       # every observation, for continuity
+    lab = df.y.values >= 0
+    d, s = df[lab], s[lab]
+    y = d.y.values; yhat = (s >= (0.5 if is_proba else 0.0)).astype(int)
+    pred = top1_pred(d, s)
     m = dict(f1=f1_score(y, yhat, zero_division=0), f1_macro=f1_score(y, yhat, average="macro", zero_division=0),
              precision=precision_score(y, yhat, zero_division=0), recall=recall_score(y, yhat, zero_division=0),
              accuracy=accuracy_score(y, yhat), top1=float(pred.y.mean()),
-             miss_rate=miss_rate(df), continuity=route_continuity(pred),
+             labeled_obs_frac=float(len(pred) / len(pred_all)), miss_rate=None,
+             continuity=route_continuity(pred_all),
              logloss=float(log_loss(y, np.clip(s, 1e-7, 1 - 1e-7))) if is_proba else None,
              cm=confusion_matrix(y, yhat, labels=[0, 1]).tolist())
-    return {k: (float(v) if isinstance(v, (np.floating,)) else v) for k, v in m.items()}
+    return {k: (float(v) if isinstance(v, np.floating) else v) for k, v in m.items()}
 
 def evaluate_model(name, family, config, make_model, train, test, feats,
                    cv_splits=5, outdir=RES, save=True):
-    """make_model: zero-arg function returning a NEW unfitted estimator (use a Pipeline for scaling)."""
+    """make_model: zero-arg function returning a NEW unfitted estimator."""
     Xtr, ytr = train[feats], train.y.values
     folds = []
     for f, (a, b) in enumerate(GroupKFold(cv_splits).split(Xtr, ytr, groups=train.trip_id)):
@@ -72,6 +84,7 @@ def evaluate_model(name, family, config, make_model, train, test, feats,
     ll = [x["logloss"] for x in folds]
     res = dict(name=name, family=family, config=config, seed=SEED, n_features=len(feats),
                cv_f1_mean=float(np.mean([x["f1"] for x in folds])), cv_f1_std=float(np.std([x["f1"] for x in folds])),
+               cv_f1_macro_mean=float(np.mean([x["f1_macro"] for x in folds])),
                cv_top1_mean=float(np.mean([x["top1"] for x in folds])),
                cv_logloss_mean=None if ll[0] is None else float(np.mean(ll)),
                train=tr_m, test=te_m, train_time_s=train_time,
@@ -83,24 +96,3 @@ def evaluate_model(name, family, config, make_model, train, test, feats,
           f"| test top1 {te_m['top1']:.4f} | logloss {te_m['logloss']} | cont {te_m['continuity']:.4f} "
           f"| train {train_time:.1f}s")
     return res, model
-
-
-
-
-#USE THIS IF CONFIRMED WITH THAVITHA
-
-# def load_data(miss_thresh=0.2):
-#     """Train + student_test only. Evaluator data is never loaded.
-#     Rule: drop TRAIN trips whose reference route misses > miss_thresh of GPS points."""
-#     df = pd.read_parquet(f"{ART}/candidates.parquet")
-#     feats = [c for c in df.columns if c not in META]
-#     tr = df[df.partition == "train"]
-#     miss = (tr.groupby(["trip_id", "obs_idx"]).y.max().eq(0)
-#               .groupby("trip_id").mean())
-#     bad = miss[miss > miss_thresh]
-#     if len(bad):
-#         bad.rename("miss_rate").to_csv(f"{RES}/excluded_train_trips.csv")
-#         print("Excluded train trips (miss > %.0f%%):" % (miss_thresh * 100), dict(bad.round(3)))
-#     tr = tr[~tr.trip_id.isin(bad.index)].reset_index(drop=True)
-#     te = df[df.partition == "student_test"].reset_index(drop=True)
-#     return tr, te, feats
