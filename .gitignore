@@ -12,6 +12,7 @@ __pycache__/
 logs/*
 !logs/.gitkeep
 artifacts/models/*
+!artifacts/models/hist_gradient_boosting*
 !artifacts/models/mlp/
 artifacts/models/mlp/*
 !artifacts/models/mlp/mlp_pipeline.joblib

@@ -1,0 +1,6 @@
+Metric,Classifier_Only,Classifier_Plus_HMM,Net_Improvement
+Route Continuity (%),92.69,97.84,+5.15
+Invalid Transition Rate (%),7.31,2.16,-5.15
+Top-1 Accuracy (%),75.68,76.32,+0.64
+Candidate Miss Rate (%),5.23,5.23,0.00
+Average Latency (ms),16.5,7111.1,+7094.6
