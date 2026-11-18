@@ -1,0 +1,15 @@
+# Person 4 reproducible comparison model
+seed: 42
+candidate_count: 4
+cv_folds: 3
+hidden_layer_sizes: [32]
+activation: relu
+solver: adam
+alpha: 0.001
+learning_rate_init: 0.001
+max_iter: 80
+early_stopping: true
+validation_fraction: 0.15
+n_iter_no_change: 20
+label_radius_m: 35.0
+ambiguity_margin_m: 2.0
