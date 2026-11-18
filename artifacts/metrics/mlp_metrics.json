@@ -59,8 +59,8 @@
     ]
   },
   "student_trips_evaluated": 10,
-  "training_time_s": 56.39594179999949,
-  "student_inference_time_s": 0.17191400000046997,
+  "training_time_s": 49.25623540000015,
+  "student_inference_time_s": 0.21631189999970957,
   "training_iterations": 40,
   "training_converged_before_limit": false,
   "training_loss_curve": [
