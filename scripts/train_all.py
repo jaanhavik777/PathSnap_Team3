@@ -12,6 +12,18 @@ from src.models.train_knn import make_knn
 from src.models.train_logistic_regression import make_logistic_regression
 
 
+def read_training_rows(path, folds):
+    columns = ["trip_id", "observation_id", "label", *FEATURE_COLUMNS]
+    rows = pd.read_csv(path, usecols=columns, dtype={"trip_id": str}).dropna(subset=["label"])
+    if not rows["label"].isin([0, 1]).all() or rows["trip_id"].isna().any():
+        raise ValueError("Training CSV requires binary labels and a trip ID on each labeled row")
+    if folds < 2 or rows["trip_id"].nunique() < folds:
+        raise ValueError("--folds must be between 2 and the number of labeled trips")
+    if not rows.groupby(["trip_id", "observation_id"])["label"].sum().eq(1).all():
+        raise ValueError("Expected exactly one positive per labeled observation")
+    return rows
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--train", type=Path, default=Path("data/processed/train_candidates.csv"))
@@ -22,16 +34,10 @@ def main():
     if args.knn_max_fit_rows < 15:
         parser.error("--knn-max-fit-rows must be at least 15")
 
-    columns = ["trip_id", "observation_id", "label", *FEATURE_COLUMNS]
-    rows = pd.read_csv(args.train, usecols=columns, dtype={"trip_id": str})
-    rows = rows.dropna(subset=["label"])
-    if not rows["label"].isin([0, 1]).all() or rows["trip_id"].isna().any():
-        parser.error("Training CSV requires binary labels and a trip ID on each labeled row")
-    if args.folds < 2 or rows["trip_id"].nunique() < args.folds:
-        parser.error("--folds must be between 2 and the number of labeled trips")
-    labeled_groups = rows.groupby(["trip_id", "observation_id"])["label"]
-    if not labeled_groups.sum().eq(1).all():
-        parser.error("Expected exactly one positive per labeled observation")
+    try:
+        rows = read_training_rows(args.train, args.folds)
+    except ValueError as error:
+        parser.error(str(error))
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     results = []

@@ -16,6 +16,10 @@ artifacts/models/*
 artifacts/models/mlp/*
 !artifacts/models/mlp/mlp_pipeline.joblib
 artifacts/results/*
+artifacts/baselines/
+artifacts/tuned_baselines/
+artifacts/person1/
+artifacts/route_eval/
 artifacts/maps/*
 artifacts/plots/*
 !artifacts/plots/mlp_confusion_matrix.png
