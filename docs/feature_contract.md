@@ -28,7 +28,7 @@ a zero-length arc.
 The default search returns up to eight arcs within 50 metres. A radius miss
 falls back to the nearest arc when the network has at least one arc.
 
-The optional `label` column is written by the CLI only with `--partition train --labels`.
+Use `--labels` with `--partition train` for training or `--partition student_test` for development evaluation. Evaluator-test exports always omit labels.
 A positive requires an unambiguous reference arc within 30 metres, with the
 second-closest reference arc more than 5 metres farther away. The selected arc
 must occur once on the reference route, agree with the ordering of other
