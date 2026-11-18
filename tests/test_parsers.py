@@ -2,7 +2,19 @@ from pathlib import Path
 
 import pytest
 
-from src.data.parsers import load_trip
+from src.data.parsers import load_trip, read_nodes, read_tracks
+
+
+@pytest.mark.parametrize(
+    ("reader", "row", "message"),
+    [(read_nodes, "0 91", "Coordinates out of range"),
+     (read_tracks, "0 0 inf", "Non-finite values")],
+)
+def test_invalid_numeric_values_are_rejected(tmp_path, reader, row, message):
+    source = tmp_path / "invalid"
+    source.write_text(row + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match=message):
+        reader(source)
 
 
 def test_tiny_trip(tmp_path):

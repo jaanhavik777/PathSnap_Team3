@@ -45,3 +45,10 @@ against the other team models.
 Evaluator scores and decoded routes were generated for both baselines without
 loading evaluator reference routes. Select any submission model using the
 documented development criteria.
+
+For the Random Forest comparison, use the [shared comparison CSV](../reports/data/student_test_baseline_summary.csv).
+It includes pre-decoder direct continuity (93.58% for Logistic Regression and
+93.26% for KNN) and log loss using the same probability clipping as the Random
+Forest evaluation (0.1645 and 0.1756, respectively). The
+[model report](../reports/sections/04_models.md) explains the denominators and
+includes the comparison figures.

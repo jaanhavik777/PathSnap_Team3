@@ -7,13 +7,23 @@ def _read(path, names, dtype=float):
     df=pd.read_csv(path,sep=r"\s+",header=None,names=names,dtype=dtype)
     if df.isna().any().any():
         raise ValueError(f"Missing values in {path}")
+    if not np.isfinite(df.to_numpy()).all():
+        raise ValueError(f"Non-finite values in {path}")
     return df
 
+
+def _read_coordinates(path, names):
+    df = _read(path, names)
+    if not (df.longitude.abs().le(180) & df.latitude.abs().le(90)).all():
+        raise ValueError(f"Coordinates out of range in {path}")
+    return df
+
+
 def read_tracks(path):
-    return _read(path,["longitude","latitude","timestamp"])
+    return _read_coordinates(path, ["longitude", "latitude", "timestamp"])
 
 def read_nodes(path):
-    df=_read(path,["longitude","latitude"])
+    df = _read_coordinates(path, ["longitude", "latitude"])
     df.insert(0,"node_id",np.arange(len(df),dtype=np.int64))
     return df
 

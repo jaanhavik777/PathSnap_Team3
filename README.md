@@ -25,10 +25,16 @@ python -m scripts.build_features --partition student_test --labels --out data/pr
 python -m scripts.train_all
 python -m scripts.evaluate_candidate_recall
 python -m scripts.evaluate_person1 --partition student_test
+python -m scripts.analyze_data
 python -m scripts.export_results
+python -m scripts.plot_baseline_results
 ```
 
-Training uses weak labels and five folds grouped by trip. The results index is `artifacts/results/baseline_results.md`. See the [feature contract](docs/feature_contract.md) and [measured baseline results](docs/baseline_results.md) for denominators and metric definitions.
+Training uses weak labels and five folds grouped by trip. The results index is `artifacts/results/baseline_results.md`. The exporter can reuse existing scores from `artifacts/jaanhavi/` or `artifacts/person1/`; new evaluation runs write to `artifacts/baseline_evaluation/`. See the [feature contract](docs/feature_contract.md), [EDA and preprocessing report](reports/sections/02_eda_and_preprocessing.md), and [measured baseline results](docs/baseline_results.md).
+
+For the five-model comparison, use `top1_direct_continuity` to match the Random Forest pre-decoder continuity definition. Compare post-Viterbi continuity in a separate column. The baseline export also includes candidate log loss with the same probability clipping as Random Forest.
+
+Generate a Folium development map with `python -m scripts.make_map data/raw/train/00000001 --out artifacts/maps/trip_00000001.html`. It overlays the GPS trace, a sampled road graph, and the reference route. Keep the raw data and generated maps local.
 
 To tune on training folds, run `python -m scripts.run_tuning --trials 8`. The tuner keeps the baseline as a trial, selects by mean validation observation top-1, and writes fitted models, trials, and selected parameters to `artifacts/tuned_baselines/`. After selection, evaluate those models with `python -m scripts.evaluate_person1 --partition student_test --model-dir artifacts/tuned_baselines --out-dir artifacts/tuned_baselines/student_test`.
 

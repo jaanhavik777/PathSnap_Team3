@@ -18,6 +18,8 @@ artifacts/models/mlp/*
 artifacts/results/*
 artifacts/baselines/
 artifacts/tuned_baselines/
+artifacts/baseline_evaluation/
+artifacts/jaanhavi/
 artifacts/person1/
 artifacts/route_eval/
 artifacts/maps/*

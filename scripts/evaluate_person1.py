@@ -67,7 +67,7 @@ def main():
     args = parser.parse_args()
     evaluate = args.partition == "student_test"
     input_path = args.features or Path("data/processed") / INPUT_FILES[args.partition]
-    out_dir = args.out_dir or Path("artifacts/person1") / args.partition
+    out_dir = args.out_dir or Path("artifacts/baseline_evaluation") / args.partition
     root = args.data_root / args.partition
     folders = {path.parent.name: path.parent for path in root.glob("*/*.track") if path.stem == path.parent.name}
     candidates = pd.read_csv(input_path, dtype={"trip_id": str})
