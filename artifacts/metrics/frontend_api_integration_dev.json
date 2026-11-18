@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "test_scope": "same-computer real HTTP integration; not a cross-laptop test",
+  "backend_branch": "feature/hitha-hmm-api",
+  "backend_commit": "f25601b",
+  "model": "HistGradientBoostingClassifier",
+  "partition": "student_test",
+  "trip_ids_returned": 10,
+  "streamlit_app_test": "passed: two actual predictions, trip change cleared the previous prediction, zero app exceptions",
+  "predictions": [
+    {
+      "trip_id": "00000000",
+      "gps_observations": 2503,
+      "predicted_route_geometry_lines": 440,
+      "server_observation_top1_accuracy": 0.6256,
+      "route_continuity": 0.9488,
+      "inference_time_ms": 6434.93,
+      "folium_map_rendered": true
+    },
+    {
+      "trip_id": "00000007",
+      "gps_observations": 1354,
+      "predicted_route_geometry_lines": 187,
+      "server_observation_top1_accuracy": 0.7334,
+      "route_continuity": 0.9682,
+      "inference_time_ms": 1323.2,
+      "folium_map_rendered": true
+    }
+  ],
+  "notes": [
+    "Both predictions used student-test development trips and server-side ground-truth evaluation.",
+    "No evaluator partition was accessed.",
+    "Backend ran in a detached worktree; this record does not imply its code is merged into main.",
+    "Both services ran on the same computer; LAN and firewall behavior were not tested."
+  ]
+}

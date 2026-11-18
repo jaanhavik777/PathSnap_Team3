@@ -1,19 +1,39 @@
-# Two-laptop demo checklist
+# Review 2 demo checklist — Person 4
+
+## Confirmed in this checkout/work session
+
+- Reproduced MLP training/evaluation on supplied train and student-test partitions only. Exact metrics and the 40-iteration convergence warning are in `docs/mlp_person4_results.md`.
+- Saved pipeline, JSON/CSV metrics, loss curve, confusion matrix, and performance plot.
+- Full repository tests: **36 passed**. Two warnings come from the deliberately tiny five-iteration MLP unit-test fixture.
+- Streamlit started locally and its health endpoint returned `ok`.
+- Ran Person 3's current FastAPI branch (`feature/hitha-hmm-api`, commit `f25601b`) locally with its HGB artifact and the permitted student-test partition. The real frontend client fetched health and all 10 dynamic trip IDs, posted two selected IDs, parsed genuine backend metrics/geometry, and rendered both Folium maps. API request and inference logs appeared in the backend terminal. Details are in `docs/api_contract.md`.
 
 ## Laptop 1 — backend
 
-1. In the project environment, install `python -m pip install -r requirements.txt`.
-2. Start the team's API with its documented command, bound to `0.0.0.0:8000` (for example `uvicorn <backend_module>:app --host 0.0.0.0 --port 8000`).
-3. Find the private LAN IPv4 address with `ipconfig`; ensure TCP 8000 is allowed on the private network.
-4. Confirm `/api/health` reports ready and `/api/trips` returns the allowed evaluator trip IDs. Keep the terminal visible to show genuine inference logs.
+Use the repository version that contains Person 3's FastAPI commit. Install requirements, set the data root to the permitted demonstration partition, point to the deployed classifier, and start the actual API:
 
-## Laptop 2 — frontend
+```powershell
+python -m pip install -r requirements.txt
+$env:DATA_ROOT = "C:\\path\\to\\Student folder\\student_test"
+$env:MODEL_PATH = "artifacts/models/hist_gradient_boosting.joblib"
+$env:EVALUATION_PARTITION = "student_test"
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+ipconfig
+```
 
-1. Install the same requirements file.
-2. Set `$env:PATHSNAP_API_URL="http://<LAPTOP_1_LAN_IP>:8000"` in PowerShell.
-3. Verify `Invoke-RestMethod "$env:PATHSNAP_API_URL/api/health"`.
-4. Start `python -m streamlit run frontend/app.py --server.address 0.0.0.0`.
-5. Select an ID actually returned by the API, click Predict Route, and explain which metrics are absent versus returned.
-6. Repeat on multiple allowed IDs and show the visible Laptop 1 server logs.
+For final evaluation, use the exact reserved partition authorized by the organizers and set `DATA_ROOT` / `EVALUATION_PARTITION` accordingly. Keep the terminal visible for genuine request and inference logs. Allow inbound TCP 8000 on the private network if required.
 
-Troubleshoot wrong LAN IP, different/VPN-isolated networks, host firewall port 8000, API readiness, timeout and actual endpoint/JSON schema. The API was unavailable in the empty repository, and cross-device testing remains pending; do not claim the live integration is verified until performed with Person 3's server.
+## Laptop 2 — Streamlit
+
+```powershell
+python -m pip install -r requirements.txt
+$env:PATHSNAP_API_URL = "http://<LAPTOP_1_PRIVATE_IPV4>:8000"
+Invoke-RestMethod "$env:PATHSNAP_API_URL/api/health"
+python -m streamlit run frontend/app.py
+```
+
+Select a trip ID returned by the backend, click **Predict route**, show the real server log on Laptop 1, explain the returned metrics and missing values, and repeat with another allowed trip. No mock predictions are used in the evaluator UI.
+
+## Integration boundary
+
+Two actual student-test predictions and map renders succeeded on one computer. A separate Laptop 1/Laptop 2 run, firewall configuration, and route selection from the reserved evaluator partition have not been performed in this environment; do not claim those as passed. On Laptop 2, verify the private IP, same reachable network, API health endpoint, and port 8000 before the review.
